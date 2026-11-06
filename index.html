@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ЁС ЗҮЙ 10-р анги - Цахим Ном</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        amber: {
+                            50: '#fffbeb',
+                            100: '#fef3c7',
+                            800: '#92400e',
+                            900: '#78350f',
+                        },
+                        gold: '#d97706',
+                        paper: '#fcfbf7',
+                        paperDark: '#121826',
+                        cardDark: '#1e293b'
+                    },
+                    fontFamily: {
+                        serif: ['Merriweather', 'Georgia', 'serif'],
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .serif-text {
+            font-family: 'Merriweather', Georgia, serif;
+        }
+        /* Custom scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(217, 119, 6, 0.4);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(217, 119, 6, 0.7);
+        }
+        /* Page flip transition animation */
+        .page-transition {
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+        }
+        .page-enter-left {
+            transform: translateX(-30px);
+            opacity: 0;
+        }
+        .page-enter-right {
+            transform: translateX(30px);
+            opacity: 0;
+        }
+        .page-active {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        mark {
+            background-color: #fef08a;
+            color: #854d0e;
+            padding: 1px 4px;
+            border-radius: 2px;
+        }
+        .dark mark {
+            background-color: #854d0e;
+            color: #fef08a;
+        }
+    </style>
+</head>
+<body class="bg-amber-50/50 dark:bg-paperDark text-slate-800 dark:text-slate-100 min-h-screen flex flex-col justify-between selection:bg-amber-200 dark:selection:bg-amber-900/60">
+
+    <!-- TOP HEADER / TOOLBAR -->
+    <header class="sticky top-0 z-30 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-amber-200/60 dark:border-slate-800 shadow-sm transition-colors">
+        <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
+            
+            <!-- Book Logo / Title -->
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-600 to-amber-500 text-white flex items-center justify-center shadow-md shadow-amber-600/20">
+                    <i class="fa-solid fa-book-open text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-slate-900 dark:text-white text-base sm:text-lg leading-tight">ЁС ЗҮЙ 10</h1>
+                    <p class="text-xs text-amber-700 dark:text-amber-400 font-medium">Сурах бичиг • Цахим хувилбар</p>
+                </div>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="hidden md:flex items-center relative max-w-xs w-full">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 text-slate-400 text-xs"></i>
+                <input type="text" id="searchInput" placeholder="Номноос хайх..." 
+                    class="w-full pl-9 pr-8 py-1.5 text-sm bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full focus:outline-none focus:ring-2 focus:ring-amber-500/50 text-slate-800 dark:text-slate-200">
+                <button id="clearSearchBtn" class="hidden absolute right-3 text-slate-400 hover:text-slate-600 text-xs">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Controls (Font Size, Theme Toggle, Bookmarks, Mobile Search) -->
+            <div class="flex items-center gap-1.5 sm:gap-2">
+                <!-- Search Toggle Mobile -->
+                <button id="mobileSearchToggle" class="md:hidden p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-sm">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+
+                <!-- Font Resizer -->
+                <div class="flex items-center bg-slate-100 dark:bg-slate-800 rounded-lg p-0.5 border border-slate-200/60 dark:border-slate-700">
+                    <button id="fontDecrease" title="Бичгийн хэмжээ багасгах" class="w-7 h-7 flex items-center justify-center rounded-md hover:bg-white dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold transition">A-</button>
+                    <button id="fontReset" title="Бичгийн хэмжээ хэвийн" class="w-7 h-7 flex items-center justify-center rounded-md hover:bg-white dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-medium transition">A</button>
+                    <button id="fontIncrease" title="Бичгийн хэмжээ томруулах" class="w-7 h-7 flex items-center justify-center rounded-md hover:bg-white dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold transition">A+</button>
+                </div>
+
+                <!-- Theme Toggle -->
+                <button id="themeToggle" class="p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition text-sm" title="Харанхуй/Гэгээлэг горим">
+                    <i class="fa-solid fa-moon dark:hidden"></i>
+                    <i class="fa-solid fa-sun hidden dark:inline text-amber-400"></i>
+                </button>
+
+                <!-- Bookmark Button -->
+                <button id="bookmarkBtn" class="p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition text-sm relative" title="Тэмдэглэх">
+                    <i id="bookmarkIcon" class="fa-regular fa-bookmark"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Search Dropdown Input -->
+        <div id="mobileSearchPanel" class="hidden md:hidden px-4 pb-3 border-t border-slate-100 dark:border-slate-800 pt-2">
+            <div class="relative w-full">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                <input type="text" id="mobileSearchInput" placeholder="Номноос хайх..." 
+                    class="w-full pl-9 pr-8 py-1.5 text-sm bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full focus:outline-none focus:ring-2 focus:ring-amber-500/50">
+            </div>
+        </div>
+    </header>
+
+    <!-- SEARCH RESULTS BAR -->
+    <div id="searchStats" class="hidden bg-amber-50 dark:bg-slate-800 border-b border-amber-200 dark:border-slate-700 py-1.5 px-4 text-center text-xs text-amber-900 dark:text-amber-200 font-medium">
+        <span id="searchCount">0</span> үр дүн олдлоо.
+    </div>
+
+    <!-- MAIN READER CONTAINER -->
+    <main class="flex-1 max-w-4xl w-full mx-auto px-3 sm:px-6 py-6 sm:py-10 flex flex-col justify-center">
+
+        <!-- BOOK READER CARD -->
+        <div class="bg-paper dark:bg-cardDark rounded-2xl shadow-xl border border-amber-900/10 dark:border-slate-700/60 overflow-hidden flex flex-col relative min-h-[580px] sm:min-h-[640px] transition-colors">
+            
+            <!-- Book Top Indicator Ribbon -->
+            <div class="h-1.5 w-full bg-gradient-to-r from-amber-600 via-yellow-500 to-amber-700"></div>
+
+            <!-- BOOK CONTENT AREA -->
+            <div id="bookContainer" class="flex-1 p-6 sm:p-10 md:p-12 serif-text leading-relaxed text-slate-800 dark:text-slate-200 page-transition page-active" style="font-size: 1.05rem;">
+                
+                <!-- PAGE 0: COVER & BLURB -->
+                <div class="page-content" data-page="0">
+                    <div class="text-center py-6">
+                        <span class="inline-block px-3.5 py-1 rounded-full text-xs font-sans font-semibold bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300 mb-4 tracking-wider uppercase">
+                            10-р Ангийн Сурах Бичиг
+                        </span>
+                        <h2 class="text-3xl sm:text-5xl font-extrabold text-slate-900 dark:text-white mb-4 tracking-tight">
+                            ЁС ЗҮЙ
+                        </h2>
+                        <p class="font-sans text-sm sm:text-base text-amber-700 dark:text-amber-400 font-medium max-w-lg mx-auto mb-8">
+                            Товлорол бясалгалын ерөөл үг & Арга, Билгийг танин мэдэх нь
+                        </p>
+
+                        <div class="my-8 py-6 px-4 bg-amber-50/70 dark:bg-slate-800/60 rounded-xl border border-amber-200/60 dark:border-slate-700 max-w-md mx-auto shadow-inner">
+                            <i class="fa-solid fa-om text-2xl text-amber-600 dark:text-amber-400 mb-3 block"></i>
+                            <h3 class="font-sans font-semibold text-xs uppercase tracking-widest text-amber-800 dark:text-amber-300 mb-2">Товлорол бясалгалын ерөөл үг:</h3>
+                            <blockquote class="italic text-lg sm:text-xl font-serif text-slate-800 dark:text-amber-100 font-bold">
+                                “Миний хийсэн үйл бүхэн бусдад ач тусаа үзүүлэх болтугай.”
+                            </blockquote>
+                        </div>
+
+                        <div class="font-sans text-xs sm:text-sm text-slate-500 dark:text-slate-400 space-y-2 mt-8">
+                            <p><i class="fa-solid fa-book-bookmark text-amber-600 mr-2"></i>Агуулга: Арга ба Билгийн ухааныг амьдралд хэрэгжүүлэх нь</p>
+                            <p><i class="fa-solid fa-layer-group text-amber-600 mr-2"></i>Нийт 4 үндсэн хэсэгтэй цахим гарын авлага</p>
+                        </div>
+                        
+                        <button onclick="goToPage(1)" class="mt-8 font-sans inline-flex items-center gap-2 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white font-semibold px-6 py-3 rounded-full shadow-lg shadow-amber-600/25 transition transform hover:-translate-y-0.5">
+                            Уншиж эхлэх <i class="fa-solid fa-arrow-right text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- PAGE 1: SECTION 1 -->
+                <div class="page-content hidden" data-page="1">
+                    <div class="mb-6 pb-3 border-b border-amber-200/50 dark:border-slate-700 flex justify-between items-center">
+                        <span class="font-sans text-xs font-semibold text-amber-700 dark:text-amber-400 tracking-wider uppercase">Бүлэг 1</span>
+                        <button onclick="copyCurrentPageText()" class="font-sans text-xs text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 transition flex items-center gap-1">
+                            <i class="fa-regular fa-copy"></i> Хуулах
+                        </button>
+                    </div>
+
+                    <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-6">
+                        1. Мэдлэг ба Сэтгэлийн Хандлага
+                    </h2>
+
+                    <p class="mb-6 leading-relaxed">
+                        Шинжлэх ухааны мэдлэг үнэн зөв байж болно. Гэхдээ тэр мэдлэгийг бид юунд ашиглах вэ гэдэг нь өөр асуудал юм. Шинжлэх ухааны мэдлэгийг ашиглаж ирсэн туршлагад алдаа гарсан нь цөөнгүй байгаа учраас бид мэдлэгийг ашиг гэж хардаг хандлагаа өөрчлөх хэрэгтэй.
+                    </p>
+
+                    <!-- Quote 1: Einstein -->
+                    <div class="my-6 p-5 bg-amber-50/80 dark:bg-slate-800/80 rounded-xl border-l-4 border-amber-600 shadow-sm font-sans">
+                        <div class="flex items-start gap-3">
+                            <i class="fa-solid fa-quote-left text-amber-600/40 text-2xl mt-1"></i>
+                            <div>
+                                <p class="italic text-slate-700 dark:text-slate-300 font-serif text-base mb-2">
+                                    “Хоёр хязгааргүй зүйл байна: Орчлон ертөнц ба хүний тэнэглэл, харин би орчлон ертөнцийн талаар мэдэхгүй.”
+                                </p>
+                                <p class="text-right text-xs font-bold text-slate-900 dark:text-amber-400">— А.Эйнштейн</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quote 2: Dalai Lama -->
+                    <div class="my-6 p-5 bg-amber-50/80 dark:bg-slate-800/80 rounded-xl border-l-4 border-amber-600 shadow-sm font-sans">
+                        <div class="flex items-start gap-3">
+                            <i class="fa-solid fa-quote-left text-amber-600/40 text-2xl mt-1"></i>
+                            <div>
+                                <p class="italic text-slate-700 dark:text-slate-300 font-serif text-base mb-2">
+                                    “Бид бол дэлхийг устгах хүчтэй, бас аврах чадалтай цорын ганц төрөлхтөн.”
+                                </p>
+                                <p class="text-right text-xs font-bold text-slate-900 dark:text-amber-400">— Дээрхийн гэгээнтэн XIV Далай лам</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="mb-6 leading-relaxed">
+                        Хүн төрөлхтөн өрөөсгөл, хязгаарлагдмал, дутмаг мэдлэгтээ захирагдвал орчлонг сөнөөх хүч болно, харин сэтгэлээ зөв жолоодвол орчлонг аврах агуу чадал бий.
+                    </p>
+
+                    <!-- QA Box: Арга -->
+                    <div class="mt-8 p-6 bg-white dark:bg-slate-800 rounded-xl border border-amber-900/10 dark:border-slate-700 shadow-sm font-sans">
+                        <div class="flex items-center gap-2 text-amber-700 dark:text-amber-400 font-bold mb-3 text-base">
+                            <i class="fa-solid fa-circle-question text-amber-600"></i>
+                            <h3>Арга гэж юу вэ?</h3>
+                        </div>
+                        <p class="text-slate-700 dark:text-slate-300 text-sm sm:text-base leading-relaxed font-serif">
+                            Арга гэдэг нь мэдлэгийг зөв тийш залдаг ухаан. Аливаа үйл хэргийг бүтээхдээ амьтан бүхнийг зовлон бүхнээс нь гэтэлгэж өгье гэсэн энэрэхүйн нинжин сэтгэл, бусдыг зөрчил хямралаас хагацуулж, гэм бүгдийг нь засъя гэх нигүүлсэнгүй сэтгэлээр хандах нь хамгийн зөв арга болно.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- PAGE 2: SECTION 2 -->
+                <div class="page-content hidden" data-page="2">
+                    <div class="mb-6 pb-3 border-b border-amber-200/50 dark:border-slate-700 flex justify-between items-center">
+                        <span class="font-sans text-xs font-semibold text-amber-700 dark:text-amber-400 tracking-wider uppercase">Бүлэг 2</span>
+                        <button onclick="copyCurrentPageText()" class="font-sans text-xs text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 transition flex items-center gap-1">
+                            <i class="fa-regular fa-copy"></i> Хуулах
+                        </button>
+                    </div>
+
+                    <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-6">
+                        Арга Эв ба Арга Ухаан
+                    </h2>
+
+                    <!-- QA Box: Арга эв -->
+                    <div class="mb-6 p-6 bg-white dark:bg-slate-800 rounded-xl border border-amber-900/10 dark:border-slate-700 shadow-sm font-sans">
+                        <div class="flex items-center gap-2 text-amber-700 dark:text-amber-400 font-bold mb-3 text-base">
+                            <i class="fa-solid fa-compass text-amber-600"></i>
+                            <h3>Арга эв гэж юу вэ, түүнийг амьдралд хэрхэн хэрэглэх вэ?</h3>
+                        </div>
+                        <p class="text-slate-700 dark:text-slate-300 text-sm sm:text-base leading-relaxed font-serif">
+                            Ямар ч ажил үүргийг гүйцэтгэхдээ хүн төрөлхтний тусын тулд, бусдад тустай, улс эх орондоо хэрэгтэй үйл хэргийг сонгож, аль болох бага хүч гаргаж, богино хугацаанд өндөр чанартай үр дүнд хүрч болох арга замыг олж тогтоохыг арга эв гэнэ.
+                        </p>
+                    </div>
+
+                    <!-- QA Box: Арга ухаан -->
+                    <div class="mb-8 p-6 bg-white dark:bg-slate-800 rounded-xl border border-amber-900/10 dark:border-slate-700 shadow-sm font-sans">
+                        <div class="flex items-center gap-2 text-amber-700 dark:text-amber-400 font-bold mb-3 text-base">
+                            <i class="fa-solid fa-lightbulb text-amber-600"></i>
+                            <h3>Арга ухаан гэж юу вэ?</h3>
+                        </div>
+                        <p class="text-slate-700 dark:text-slate-300 text-sm sm:text-base leading-relaxed font-serif mb-3">
+                            Зөв арга буюу энэрэхүй нинжин сэтгэлийг үүсгэхийн тулд эхлээд өөрийн алдаа гэмийг засах нь арга ухаан болно.
+                        </p>
+                        <p class="text-slate-700 dark:text-slate-300 text-sm sm:text-base leading-relaxed font-serif">
+                            Сурагчид та бүхэн хичээлээр сурч мэдсэн олон сайхан мэдлэгээ өөрт болон бусдад тустай болгох арга ухааныг олох хэрэгтэй. Мэдлэгээ зөв аргаар хэрэгжүүлэхгүй бол хуримтлуулсан мэдлэг нь хэнд ч хэрэггүй талаар өнгөрөхөд хүрнэ.
+                        </p>
+                    </div>
+
+                    <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-4">
+                        1.1.2. Аргыг дадуулсны ач тусыг танин мэдэх
+                    </h3>
+
+                    <!-- Quote 3: Tolstoy -->
+                    <div class="my-6 p-5 bg-amber-50/80 dark:bg-slate-800/80 rounded-xl border-l-4 border-amber-600 shadow-sm font-sans">
+                        <div class="flex items-start gap-3">
+                            <i class="fa-solid fa-quote-left text-amber-600/40 text-2xl mt-1"></i>
+                            <div>
+                                <p class="italic text-slate-700 dark:text-slate-300 font-serif text-base mb-2">
+                                    “Сайн үйлийг хүч чармайлт гарган хэрэгжүүлдэг, тэрхүү хүч чармайлтаа хэд дахин давтан гаргавал сайн үйл нь дадал болно... Сайхан сэтгэл гэдэг нь эрүүл бие л гэсэн үг: түүнийг эзэмдвэл үл ажиглагдам байдлаар бүх үйл хэрэг чинь амжилттай болно”
+                                </p>
+                                <p class="text-right text-xs font-bold text-slate-900 dark:text-amber-400">— Лев Толстой</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="leading-relaxed">
+                        Бусдын тусын тулд хэмээх сайхан сэтгэлээр аливаад хандах нь хамгийн зөв сэтгэл, зөв арга гэж бид өмнө нь үзсэн. Гагцхүү тэрхүү зөв аргаа байнгын хүчин чармайлт гаргасны үр дүнд л өөртөө дадуулж хэвшүүлэх ажгуу.
+                    </p>
+                </div>
+
+                <!-- PAGE 3: SECTION 3 -->
+                <div class="page-content hidden" data-page="3">
+                    <div class="mb-6 pb-3 border-b border-amber-200/50 dark:border-slate-700 flex justify-between items-center">
+                        <span class="font-sans text-xs font-semibold text-amber-700 dark:text-amber-400 tracking-wider uppercase">Бүлэг 3</span>
+                        <button onclick="copyCurrentPageText()" class="font-sans text-xs text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 transition flex items-center gap-1">
+                            <i class="fa-regular fa-copy"></i> Хуулах
+                        </button>
+                    </div>
+
+                    <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-6">
+                        Зөв Аргыг Дадуулахын Ач Тус
+                    </h2>
+
+                    <!-- QA Box: Benefiting from practice -->
+                    <div class="mb-6 p-6 bg-white dark:bg-slate-800 rounded-xl border border-amber-900/10 dark:border-slate-700 shadow-sm font-sans">
+                        <div class="flex items-center gap-2 text-amber-700 dark:text-amber-400 font-bold mb-3 text-base">
+                            <i class="fa-solid fa-heart text-amber-600"></i>
+                            <h3>Зөв аргыг дадуулахын ач тус юу вэ?</h3>
+                        </div>
+                        <p class="text-slate-700 dark:text-slate-300 text-sm sm:text-base leading-relaxed font-serif mb-3">
+                            Өөрийн эзэмшсэн мэдлэгийг өөрт болон бусдад тустай болгон хувиргаж чадах нь аргыг дадуулсны ач тус юм. Аливаа ажлыг өөрийн болон бусдын тусын тулд асрах энэрэх сэтгэлийг агуулж, аль болох хурдан хугацаанд, хамгийн бага хүч зардал гаргаж гүйцэтгэх арга эвийг олж чаддаг байх нь ямар ч ажлаас шантрахгүй байх сэтгэлийн хүчийг өгдөг.
+                        </p>
+                        <p class="text-slate-700 dark:text-slate-300 text-sm sm:text-base leading-relaxed font-serif">
+                            Сэтгэл уужран тэлснээр аливаа бэрхшээлийг зовлон гэж үзэхгүй, түүнд сэтгэл торохгүй болж, сэтгэл амар амгалантай болно. Амар амгалантай сэтгэлийн үүднээс гаргасан шийдвэр зөв болж, хийж байгаа үйл, ажил хэрэг ч өөрт болон бусдад тустай болдог.
+                        </p>
+                    </div>
+
+                    <h3 class="text-xl font-bold text-slate-900 dark:text-white mt-8 mb-4">
+                        1.3. Билгийг дадуулах учир шалтгааныг танин мэдэх
+                    </h3>
+
+                    <p class="mb-4 leading-relaxed">
+                        Хүн төрөлхтөн шинжлэх ухааны мэдлэгээ хөгжүүлэхийн хэрээр, амьдарч буй газар дэлхийгээ бөөрөнхий хэлбэртэй гэдгийг, мөн энэ дэлхий нарны системийн есөн гаргийн нэг гэдгийг, тэр ч бүү хэл нарны систем маань олон олон галактикийн нэг, тэд нэгдэж нэгэн том мета-галактикийг бүрдүүлдэг, орчлон ертөнцөд тоо томшгүй олон мета-галактикууд үүсэж, оршиж, устаж байгаа гэдгийг мэдсээр ирлээ.
+                    </p>
+                    
+                    <p class="leading-relaxed">
+                        Гагцхүү хүмүүс ертөнцийн бүхий л юмс үзэгдлийн шүтэн барилдлага, хөгжил хөдөлгөөний харьцангуй чанарыг ухааран, нигүүлсэнгүй бодь сэтгэлийг бүрдүүлэх аваас амьдралдаа тохиолдох янз бүрийн зовлон бэрхшээлийг сэтгэл зүйн хувьд хялбар даван туулах чадвартай болно.
+                    </p>
+                </div>
+
+                <!-- PAGE 4: SECTION 4 -->
+                <div class="page-content hidden" data-page="4">
+                    <div class="mb-6 pb-3 border-b border-amber-200/50 dark:border-slate-700 flex justify-between items-center">
+                        <span class="font-sans text-xs font-semibold text-amber-700 dark:text-amber-400 tracking-wider uppercase">Бүлэг 4</span>
+                        <button onclick="copyCurrentPageText()" class="font-sans text-xs text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 transition flex items-center gap-1">
+                            <i class="fa-regular fa-copy"></i> Хуулах
+                        </button>
+                    </div>
+
+                    <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-6">
+                        1.3.2. Билгийг дадуулсны ач тусыг танин мэдэх
+                    </h2>
+
+                    <!-- Quote 4: Indian proverb -->
+                    <div class="my-6 p-5 bg-amber-50/80 dark:bg-slate-800/80 rounded-xl border-l-4 border-amber-600 shadow-sm font-sans">
+                        <div class="flex items-start gap-3">
+                            <i class="fa-solid fa-quote-left text-amber-600/40 text-2xl mt-1"></i>
+                            <div>
+                                <p class="italic text-slate-700 dark:text-slate-300 font-serif text-base mb-2">
+                                    “Шөнө тайван унтаж чадахаар өдрийг өнгөрүүл, нас ахихдаа тайван байж чадахаар залуу насаа өнгөрүүл”
+                                </p>
+                                <p class="text-right text-xs font-bold text-slate-900 dark:text-amber-400">— Энэтхэг ардын зүйр үг</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="mb-6 leading-relaxed">
+                        Энэхүү ухаарлаар алхам тутамдаа юмс үзэгдлийн шүтэн барилдлагыг ухаарч, өөрийн "Би"-г номхотгож, бусдад асрал энэрлээр хандаж байвал амьдралдаа үргэлж амар амгаланг мэдэрч явах болно.
+                    </p>
+
+                    <!-- QA Box: Билгийг дадуулах -->
+                    <div class="mb-6 p-6 bg-white dark:bg-slate-800 rounded-xl border border-amber-900/10 dark:border-slate-700 shadow-sm font-sans">
+                        <div class="flex items-center gap-2 text-amber-700 dark:text-amber-400 font-bold mb-3 text-base">
+                            <i class="fa-solid fa-brain text-amber-600"></i>
+                            <h3>Билгийг дадуулах гэж юу вэ?</h3>
+                        </div>
+                        <p class="text-slate-700 dark:text-slate-300 text-sm sm:text-base leading-relaxed font-serif">
+                            Аливаа юмс үзэгдэл, асуудал, хүмүүст тохиолддог сайн муу зүйл бүгдийн мөн чанарыг зөв мэдэж, бодит байдал, олон талаас нь хандаж, бүхий л төрөлхтнийг өөртэйгөө адилтган хайрлаж чадахыг билгийг дадуулах гэнэ.
+                        </p>
+                    </div>
+
+                    <!-- QA Box: Билиг ухааны ач тус -->
+                    <div class="mb-6 p-6 bg-white dark:bg-slate-800 rounded-xl border border-amber-900/10 dark:border-slate-700 shadow-sm font-sans">
+                        <div class="flex items-center gap-2 text-amber-700 dark:text-amber-400 font-bold mb-3 text-base">
+                            <i class="fa-solid fa-sun text-amber-600"></i>
+                            <h3>Аливаа асуудлыг билиг ухаанаар шийдвэрлэхийн ач тус юу вэ?</h3>
+                        </div>
+                        <p class="text-slate-700 dark:text-slate-300 text-sm sm:text-base leading-relaxed font-serif">
+                            Өнгөрсөн, одоо, ирээдүй цагийн хамаг төрөлхтний харилцан хамаарал, шүтэн барилдлага дунд өөрийгөө оршин байгааг ухаарснаар өөртэйгээ холбоотой бүхий л орчлон, бүхий л төрөлхтнийг өөрийгөө хайрладагтай адил хайрлах билиг ухаант бодь сэтгэл үүсэх нөхцөл бүрдэнэ.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- BOOK FOOTER / PAGE NAVIGATION BAR -->
+            <div class="bg-amber-100/50 dark:bg-slate-800/80 px-6 py-4 border-t border-amber-900/10 dark:border-slate-700 flex flex-wrap items-center justify-between gap-3 text-sm font-sans">
+                <!-- Page Navigation Buttons -->
+                <div class="flex items-center gap-2">
+                    <button id="prevBtn" onclick="prevPage()" class="px-3.5 py-1.5 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 font-medium hover:bg-amber-50 dark:hover:bg-slate-600 disabled:opacity-40 disabled:cursor-not-allowed transition flex items-center gap-1.5 shadow-sm text-xs sm:text-sm">
+                        <i class="fa-solid fa-chevron-left text-xs"></i> Өмнөх
+                    </button>
+                    <button id="nextBtn" onclick="nextPage()" class="px-3.5 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-medium disabled:opacity-40 disabled:cursor-not-allowed transition flex items-center gap-1.5 shadow-sm text-xs sm:text-sm">
+                        Дараах <i class="fa-solid fa-chevron-right text-xs"></i>
+                    </button>
+                </div>
+
+                <!-- Page Dots / Indicator -->
+                <div class="flex items-center gap-1.5" id="pageDots">
+                    <!-- Dots JS injected -->
+                </div>
+
+                <!-- Page Number Status -->
+                <div class="text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400">
+                    Хуудас: <span id="currentPageNum" class="text-amber-700 dark:text-amber-400 font-bold">0</span> / <span id="totalPagesNum">4</span>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- MANDATORY CREATOR FOOTER -->
+    <footer class="w-full bg-white dark:bg-slate-900 border-t border-slate-200/80 dark:border-slate-800 py-4 px-4 mt-8 transition-colors">
+        <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs sm:text-sm text-slate-600 dark:text-slate-400 font-sans">
+            <div class="flex items-center gap-2 font-medium">
+                <i class="fa-solid fa-book-bookmark text-amber-600"></i>
+                <span>online book by Imyour_eraa</span>
+            </div>
+            
+            <a href="https://www.instagram.com/imyour_eraa/" target="_blank" rel="noopener noreferrer" 
+               class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-amber-500/10 hover:from-purple-500/20 hover:via-pink-500/20 hover:to-amber-500/20 border border-pink-500/20 text-slate-800 dark:text-slate-200 font-semibold transition group">
+                <svg class="w-4 h-4 fill-current text-pink-600 group-hover:scale-110 transition-transform" viewBox="0 0 24 24">
+                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                </svg>
+                <span>@imyour_eraa</span>
+            </a>
+        </div>
+    </footer>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast" class="fixed bottom-16 right-5 bg-slate-900 text-white dark:bg-amber-600 px-4 py-2.5 rounded-lg shadow-xl text-xs font-sans transform translate-y-10 opacity-0 pointer-events-none transition-all duration-300 flex items-center gap-2 z-50">
+        <i id="toastIcon" class="fa-solid fa-circle-check text-amber-400 dark:text-white"></i>
+        <span id="toastMsg">Мэдэгдэл</span>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // State variables
+        let currentPage = 0;
+        const totalPages = 4;
+        let fontSizeLevel = 0; // -1, 0, 1, 2
+        const fontSizes = ['0.95rem', '1.05rem', '1.15rem', '1.25rem'];
+        let bookmarks = JSON.parse(localStorage.getItem('yoszui_bookmarks') || '[]');
+
+        // Elements
+        const bookContainer = document.getElementById('bookContainer');
+        const pages = document.querySelectorAll('.page-content');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const currentPageNum = document.getElementById('currentPageNum');
+        const totalPagesNum = document.getElementById('totalPagesNum');
+        const pageDots = document.getElementById('pageDots');
+        const bookmarkBtn = document.getElementById('bookmarkBtn');
+        const bookmarkIcon = document.getElementById('bookmarkIcon');
+        const searchInput = document.getElementById('searchInput');
+        const mobileSearchInput = document.getElementById('mobileSearchInput');
+        const searchStats = document.getElementById('searchStats');
+        const searchCount = document.getElementById('searchCount');
+
+        // Initialize Book
+        function initBook() {
+            totalPagesNum.textContent = totalPages;
+            buildDots();
+            updatePageDisplay(0, 'right');
+            updateBookmarkIcon();
+            
+            // Check Dark Mode Preference
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.classList.add('dark');
+            }
+        }
+
+        // Build navigation dots
+        function buildDots() {
+            pageDots.innerHTML = '';
+            for (let i = 0; i <= totalPages; i++) {
+                const dot = document.createElement('button');
+                dot.ariaLabel = `Go to page ${i}`;
+                dot.className = `w-2.5 h-2.5 rounded-full transition-all ${i === currentPage ? 'bg-amber-600 w-5' : 'bg-slate-300 dark:bg-slate-600 hover:bg-amber-400'}`;
+                dot.onclick = () => goToPage(i);
+                pageDots.appendChild(dot);
+            }
+        }
+
+        // Update Page display with smooth flip effect
+        function updatePageDisplay(targetPage, direction = 'right') {
+            if (targetPage < 0 || targetPage > totalPages) return;
+
+            // Animate out
+            bookContainer.classList.remove('page-active');
+            bookContainer.classList.add(direction === 'right' ? 'page-enter-left' : 'page-enter-right');
+
+            setTimeout(() => {
+                pages.forEach(p => {
+                    if (parseInt(p.dataset.page) === targetPage) {
+                        p.classList.remove('hidden');
+                    } else {
+                        p.classList.add('hidden');
+                    }
+                });
+
+                currentPage = targetPage;
+                currentPageNum.textContent = currentPage;
+
+                // Update controls
+                prevBtn.disabled = currentPage === 0;
+                nextBtn.disabled = currentPage === totalPages;
+
+                buildDots();
+                updateBookmarkIcon();
+
+                // Animate in
+                bookContainer.classList.remove('page-enter-left', 'page-enter-right');
+                bookContainer.classList.add('page-active');
+                
+                // Scroll to top of card smooth
+                bookContainer.scrollTop = 0;
+            }, 150);
+        }
+
+        function nextPage() {
+            if (currentPage < totalPages) {
+                updatePageDisplay(currentPage + 1, 'right');
+            }
+        }
+
+        function prevPage() {
+            if (currentPage > 0) {
+                updatePageDisplay(currentPage - 1, 'left');
+            }
+        }
+
+        function goToPage(pageNum) {
+            if (pageNum === currentPage) return;
+            const dir = pageNum > currentPage ? 'right' : 'left';
+            updatePageDisplay(pageNum, dir);
+        }
+
+        // Font Sizing logic
+        document.getElementById('fontIncrease').onclick = () => {
+            if (fontSizeLevel < fontSizes.length - 1) {
+                fontSizeLevel++;
+                bookContainer.style.fontSize = fontSizes[fontSizeLevel];
+                showToast('Бичгийн хэмжээ томров');
+            }
+        };
+        document.getElementById('fontDecrease').onclick = () => {
+            if (fontSizeLevel > 0) {
+                fontSizeLevel--;
+                bookContainer.style.fontSize = fontSizes[fontSizeLevel];
+                showToast('Бичгийн хэмжээ багасав');
+            }
+        };
+        document.getElementById('fontReset').onclick = () => {
+            fontSizeLevel = 1;
+            bookContainer.style.fontSize = fontSizes[fontSizeLevel];
+            showToast('Бичгийн хэмжээ хэвийн боллоо');
+        };
+
+        // Dark/Light Theme Toggle
+        document.getElementById('themeToggle').onclick = () => {
+            const isDark = document.documentElement.classList.toggle('dark');
+            showToast(isDark ? 'Харанхуй горим идэвхжлээ' : 'Гэгээлэг горим идэвхжлээ');
+        };
+
+        // Bookmarks system
+        function updateBookmarkIcon() {
+            if (bookmarks.includes(currentPage)) {
+                bookmarkIcon.className = "fa-solid fa-bookmark text-amber-600";
+            } else {
+                bookmarkIcon.className = "fa-regular fa-bookmark";
+            }
+        }
+
+        bookmarkBtn.onclick = () => {
+            if (bookmarks.includes(currentPage)) {
+                bookmarks = bookmarks.filter(b => b !== currentPage);
+                showToast(`Хуудас ${currentPage} тэмдэглэлээс хасагдлаа`);
+            } else {
+                bookmarks.push(currentPage);
+                showToast(`Хуудас ${currentPage} тэмдэглэгдлээ`);
+            }
+            localStorage.setItem('yoszui_bookmarks', JSON.stringify(bookmarks));
+            updateBookmarkIcon();
+        };
+
+        // Copy Text Functionality
+        function copyCurrentPageText() {
+            const activePageContent = document.querySelector(`.page-content[data-page="${currentPage}"]`);
+            if (!activePageContent) return;
+
+            const textToCopy = activePageContent.innerText;
+            
+            // Clipboard fallback as specified
+            const textarea = document.createElement('textarea');
+            textarea.value = textToCopy;
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showToast('Хуудасны текст хуулагдлаа!');
+            } catch (err) {
+                showToast('Хуулахад алдаа гарлаа');
+            }
+            document.body.removeChild(textarea);
+        }
+
+        // Search in Book Functionality
+        function handleSearch(query) {
+            query = query.trim().toLowerCase();
+            const clearBtn = document.getElementById('clearSearchBtn');
+
+            if (!query) {
+                searchStats.classList.add('hidden');
+                clearBtn.classList.add('hidden');
+                removeHighlights();
+                return;
+            }
+
+            clearBtn.classList.remove('hidden');
+            let count = 0;
+            let firstMatchedPage = -1;
+
+            pages.forEach((pageEl, idx) => {
+                const text = pageEl.innerText.toLowerCase();
+                if (text.includes(query)) {
+                    count++;
+                    if (firstMatchedPage === -1) firstMatchedPage = idx;
+                }
+            });
+
+            if (count > 0) {
+                searchStats.classList.remove('hidden');
+                searchCount.textContent = count;
+                if (firstMatchedPage !== -1 && firstMatchedPage !== currentPage) {
+                    goToPage(firstMatchedPage);
+                }
+            } else {
+                searchStats.classList.remove('hidden');
+                searchCount.textContent = 0;
+            }
+        }
+
+        function removeHighlights() {
+            // Simplified highlight removal placeholder logic
+        }
+
+        searchInput.addEventListener('input', (e) => handleSearch(e.target.value));
+        mobileSearchInput.addEventListener('input', (e) => handleSearch(e.target.value));
+        
+        document.getElementById('clearSearchBtn').onclick = () => {
+            searchInput.value = '';
+            mobileSearchInput.value = '';
+            handleSearch('');
+        };
+
+        document.getElementById('mobileSearchToggle').onclick = () => {
+            const panel = document.getElementById('mobileSearchPanel');
+            panel.classList.toggle('hidden');
+        };
+
+        // Keyboard Navigation Controls
+        document.addEventListener('keydown', (e) => {
+            if (e.target.tagName === 'INPUT') return;
+            if (e.key === 'ArrowRight' || e.key === 'Space') {
+                nextPage();
+            } else if (e.key === 'ArrowLeft') {
+                prevPage();
+            }
+        });
+
+        // Touch Swipe Gesture for mobile responsiveness
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        bookContainer.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+
+        bookContainer.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, { passive: true });
+
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            if (touchStartX - touchEndX > swipeThreshold) {
+                nextPage(); // Swipe Left -> Next
+            } else if (touchEndX - touchStartX > swipeThreshold) {
+                prevPage(); // Swipe Right -> Prev
+            }
+        }
+
+        // Toast Helper
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMsg');
+            toastMsg.textContent = msg;
+
+            toast.classList.remove('translate-y-10', 'opacity-0', 'pointer-events-none');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-10', 'opacity-0', 'pointer-events-none');
+            }, 2600);
+        }
+
+        // Initialize on Load
+        window.onload = initBook;
+    </script>
+</body>
+</html>
